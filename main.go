@@ -1,26 +1,37 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
+	"github.com/RobertoSuarez/api_metal/config"
+	"github.com/RobertoSuarez/api_metal/controllers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/spf13/viper"
 )
 
 func main() {
 	app := fiber.New()
+	app.Use(cors.New())
+	configvar := viper.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		user := User{
-			ID:       1,
-			Nombre:   "Roberto",
-			Apellido: "Suárez",
-		}
-		return c.JSON(user)
-	})
+	configvar.AddConfigPath(".")
+	configvar.SetConfigName("app")
+	configvar.SetConfigType("env")
 
-	app.Listen(":3000")
-}
+	configvar.AutomaticEnv()
 
-type User struct {
-	ID       int    `json:"id"`
-	Nombre   string `json:"nombre"`
-	Apellido string `json:"apellido"`
+	if err := configvar.ReadInConfig(); err != nil {
+		fmt.Println("Error al leer las variables de configuración")
+		log.Println(err)
+	} else {
+		fmt.Println("Las variables se establecierón correctamente")
+	}
+
+	api := app.Group("/api/v1")
+
+	config.UseMount("/users", api, controllers.NewControllerUser())
+
+	app.Listen(":" + configvar.GetString("port"))
 }
