@@ -1,8 +1,14 @@
 package controllers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"net/http"
 
-type User struct{}
+	"github.com/RobertoSuarez/api_metal/models"
+	"github.com/gofiber/fiber/v2"
+)
+
+type User struct {
+}
 
 func NewControllerUser() *User {
 	return &User{}
@@ -13,5 +19,25 @@ func (user *User) ConfigPath(router *fiber.App) *fiber.App {
 		return c.SendString("todos los usuarios")
 	})
 
+	router.Post("/registrar", user.registrarUsurio)
 	return router
+}
+
+func (user *User) registrarUsurio(c *fiber.Ctx) error {
+	var usuarioData models.User
+	err := c.BodyParser(&usuarioData)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).SendString(err.Error())
+	}
+
+	err = usuarioData.Registrar()
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).SendString(err.Error())
+	}
+
+	usuarioData.Password = ""
+
+	return c.JSON(usuarioData)
+
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/RobertoSuarez/api_metal/config"
 	"github.com/RobertoSuarez/api_metal/controllers"
+	"github.com/RobertoSuarez/api_metal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/spf13/viper"
@@ -28,6 +29,8 @@ func main() {
 	} else {
 		fmt.Println("Las variables se establecierón correctamente")
 	}
+
+	models.InitDataBase()
 
 	api := app.Group("/api/v1")
 
