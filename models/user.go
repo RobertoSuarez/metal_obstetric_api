@@ -21,11 +21,15 @@ type User struct {
 	Nacimiento time.Time          `bson:"nacimiento,omitempty" json:"nacimiento"`
 }
 
+func (u *User) getNameCollection() string {
+	return "usuarios"
+}
+
 func (u *User) Registrar() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	col := DB.Collection("usuarios")
+	col := DB.Collection(u.getNameCollection())
 
 	// verificar que el usuario no exita+
 
@@ -60,4 +64,28 @@ func (u *User) encryptPassword() error {
 	}
 	u.Password = string(bytes)
 	return nil
+}
+
+func (u *User) Login() (User, error) {
+
+	// Selecionando la colección
+	col := DB.Collection(u.getNameCollection())
+
+	// Recuperando el user de la DB
+	var userDB User
+	err := col.FindOne(context.TODO(), bson.D{
+		{Key: "correo", Value: u.Correo},
+	}).Decode(&userDB)
+
+	if err != nil {
+		return userDB, newUserError("No existe el usuario", false)
+	}
+
+	// comparamos el hash y la contraseña
+	err = bcrypt.CompareHashAndPassword([]byte(userDB.Password), []byte(u.Password))
+	if err != nil {
+		return userDB, newUserError("La contraseña es incorrecta", true)
+	}
+
+	return userDB, nil
 }
