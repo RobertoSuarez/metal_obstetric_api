@@ -35,6 +35,7 @@ func main() {
 	api := app.Group("/api/v1")
 
 	config.UseMount("/users", api, controllers.NewControllerUser())
+	config.UseMount("/citas", api, controllers.NewControllerCitas())
 
 	app.Listen(":" + configvar.GetString("port"))
 }
