@@ -6,6 +6,7 @@ import (
 	"github.com/RobertoSuarez/api_metal/jwt"
 	"github.com/RobertoSuarez/api_metal/models"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type User struct {
@@ -16,9 +17,7 @@ func NewControllerUser() *User {
 }
 
 func (user *User) ConfigPath(router *fiber.App) *fiber.App {
-	router.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("todos los usuarios")
-	})
+	router.Get("/", user.HandlerObtenerUsuarios)
 
 	router.Post("/registrar", user.registrarUsurio)
 	router.Post("/login", user.login)
@@ -76,4 +75,23 @@ func (user *User) login(c *fiber.Ctx) error {
 		User:  userDB,
 		Token: token,
 	})
+}
+
+// Query rol
+func (user *User) HandlerObtenerUsuarios(c *fiber.Ctx) error {
+
+	selector := bson.M{}
+	userData := models.User{}
+
+	// condición
+	rol := c.Query("rol")
+	if len(rol) > 0 {
+		selector["rol"] = rol
+	}
+
+	usuarios, err := userData.ObtenerUsuarios(selector)
+	if err != nil {
+		return err
+	}
+	return c.JSON(usuarios)
 }

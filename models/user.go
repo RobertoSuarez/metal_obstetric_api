@@ -91,3 +91,29 @@ func (u *User) Login() (User, error) {
 
 	return userDB, nil
 }
+
+func (u *User) ObtenerUsuarios(selector bson.M) (usuarios []User, err error) {
+
+	colUsers := DB.Collection(u.getNameCollection())
+	cursor, err := colUsers.Find(context.TODO(), selector)
+	if err != nil {
+		return usuarios, err
+	}
+
+	// Iterando el cursor
+	for cursor.Next(context.TODO()) {
+		var usuario User
+		err := cursor.Decode(&usuario)
+		if err != nil {
+			return usuarios, err
+		}
+
+		usuarios = append(usuarios, usuario)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return usuarios, err
+	}
+
+	return usuarios, nil
+}
