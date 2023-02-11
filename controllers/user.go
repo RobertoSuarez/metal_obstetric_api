@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/RobertoSuarez/api_metal/jwt"
 	"github.com/RobertoSuarez/api_metal/models"
@@ -83,13 +85,30 @@ func (user *User) HandlerObtenerUsuarios(c *fiber.Ctx) error {
 	selector := bson.M{}
 	userData := models.User{}
 
-	// condición
+	// el cliente puede filtrar por el rol del usuario
 	rol := c.Query("rol")
 	if len(rol) > 0 {
 		selector["rol"] = rol
 	}
 
-	usuarios, err := userData.ObtenerUsuarios(selector)
+	// el cliente puede filtrar por algun termino los documentos
+	termino := c.Query("termino")
+	if len(termino) > 0 {
+		selector["$or"] = []bson.M{
+			bson.M{"nombres": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
+			bson.M{"apellidos": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
+			bson.M{"cedula": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
+			bson.M{"correo": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
+		}
+	}
+
+	limiteStrimg := c.Query("limite")
+	limite := 0
+	if len(limiteStrimg) > 0 {
+		limite, _ = strconv.Atoi(limiteStrimg)
+	}
+
+	usuarios, err := userData.ObtenerUsuarios(selector, limite)
 	if err != nil {
 		return err
 	}

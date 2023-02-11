@@ -76,6 +76,7 @@ func (c *Cita) ObtenerCitas() ([]Cita, error) {
 	col := DB.Collection("citas")
 	var citas []Cita
 	filtro := bson.D{}
+
 	cur, err := col.Find(ctx, filtro)
 	if err != nil {
 		return citas, err
