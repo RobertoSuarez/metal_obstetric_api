@@ -95,10 +95,10 @@ func (user *User) HandlerObtenerUsuarios(c *fiber.Ctx) error {
 	termino := c.Query("termino")
 	if len(termino) > 0 {
 		selector["$or"] = []bson.M{
-			bson.M{"nombres": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
-			bson.M{"apellidos": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
-			bson.M{"cedula": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
-			bson.M{"correo": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino)}},
+			bson.M{"nombres": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino), "$options": "i"}},
+			bson.M{"apellidos": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino), "$options": "i"}},
+			bson.M{"cedula": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino), "$options": "i"}},
+			bson.M{"correo": bson.M{"$regex": fmt.Sprintf(".*%s.*", termino), "$options": "i"}},
 		}
 	}
 
