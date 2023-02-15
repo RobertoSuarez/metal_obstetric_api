@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/RobertoSuarez/api_metal/models"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Cita struct{}
@@ -12,17 +13,25 @@ func NewControllerCitas() *Cita {
 }
 
 func (cita *Cita) ConfigPath(router *fiber.App) *fiber.App {
-	router.Get("/", HandlerObtenerCitas)
+	router.Get("/", cita.HandlerObtenerCitas)
 	router.Post("/", HandlerRegistrarCitas)
 	router.Put("/", HandlerActualizarCita)
 
 	return router
 }
 
-func HandlerObtenerCitas(c *fiber.Ctx) error {
+func (citaa *Cita) HandlerObtenerCitas(c *fiber.Ctx) error {
+	selector := bson.M{}
 	var cita models.Cita
 
-	citas, err := cita.ObtenerCitas()
+	//para buscar todas las citas por la cédula que coincida
+	cedula := c.Query("cedula")
+	if len(cedula) > 0 {
+		selector["paciente.cedula"] = cedula
+	}
+
+	//cuando ya esté armado el filtro
+	citas, err := cita.ObtenerCitas(selector)
 	if err != nil {
 		return c.JSON(err)
 	}

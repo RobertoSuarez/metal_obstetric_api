@@ -69,15 +69,14 @@ func (c *Cita) RegistrarCita() error {
 	return nil
 }
 
-func (c *Cita) ObtenerCitas() ([]Cita, error) {
+func (c *Cita) ObtenerCitas(selector bson.M) ([]Cita, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	col := DB.Collection("citas")
 	var citas []Cita
-	filtro := bson.D{}
 
-	cur, err := col.Find(ctx, filtro)
+	cur, err := col.Find(ctx, selector)
 	if err != nil {
 		return citas, err
 	}
