@@ -32,6 +32,9 @@ func main() {
 
 	models.InitDataBase()
 
+	fmt.Println(configvar.GetString("configapp"))
+	fmt.Println(configvar.GetString("MONGODB"))
+
 	api := app.Group("/api/v1")
 
 	config.UseMount("/users", api, controllers.NewControllerUser())

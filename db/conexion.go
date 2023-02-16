@@ -10,6 +10,8 @@ import (
 
 var clientOptions = options.Client().ApplyURI("mongodb+srv://root:facil2020@cluster0.23imj.mongodb.net/?retryWrites=true&w=majority")
 
+//var clientOptions = options.Client().ApplyURI("mongodb://proyecto-universidad-mongo:aRqZir1LKOt4Ma3SlQvB7vqYnazMeBOHw1zXe9AbTzuz7XtJ1sBNmYrh19XamqhLcEww01fXGvsUACDb8RGKFA==@proyecto-universidad-mongo.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@proyecto-universidad-mongo@")
+
 func ConectarDB() *mongo.Client {
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
