@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Cita struct {
@@ -76,7 +77,9 @@ func (c *Cita) ObtenerCitas(selector bson.M) ([]Cita, error) {
 	col := DB.Collection("citas")
 	var citas []Cita
 
-	cur, err := col.Find(ctx, selector)
+	opciones := options.Find().SetSort(bson.M{"fecha": 1})
+
+	cur, err := col.Find(ctx, selector, opciones)
 	if err != nil {
 		return citas, err
 	}
@@ -114,4 +117,11 @@ func (c *Cita) ActualizarCita() error {
 	fmt.Println(err, result)
 
 	return nil
+}
+
+// obtener una cita por id
+func (c *Cita) ObtenerCitaPorID() error {
+
+	citas := DB.Collection("citas")
+	return citas.FindOne(context.TODO(), bson.D{{"_id", c.ID}}).Decode(&c)
 }
