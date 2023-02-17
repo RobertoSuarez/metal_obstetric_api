@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
+	"net/smtp"
 
 	"github.com/RobertoSuarez/api_metal/models"
 	"github.com/gofiber/fiber/v2"
@@ -19,6 +22,8 @@ func (cita *Cita) ConfigPath(router *fiber.App) *fiber.App {
 	router.Get("/", cita.HandlerObtenerCitas)
 	router.Post("/", cita.HandlerRegistrarCitas)
 	router.Put("/", cita.HandlerActualizarCita)
+
+	router.Put("/:idcita/recordatorio", cita.HandlerRecordarCita)
 
 	router.Get("/:idcita", cita.HandlerObtenerCitaPorID)
 
@@ -109,4 +114,64 @@ func (citaController *Cita) HandlerObtenerCitaPorID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(cita)
+}
+
+// generar el recordatorio para la paciente
+func (citaController *Cita) HandlerRecordarCita(c *fiber.Ctx) error {
+	var cita models.Cita
+
+	idCita := c.Params("idcita")
+	if len(idCita) < 1 {
+		return c.SendString("falta el id de la cita")
+	}
+
+	cita.ID, _ = primitive.ObjectIDFromHex(idCita)
+
+	cita.ObtenerCitaPorID()
+
+	// configuración del correo
+	from := "electrosonix12@gmail.com"
+	password := "ntcrqetvrfbtsxvq"
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
+	// Asusto del correo
+	subject := "Correo electrónico de prueba"
+
+	// Destinatario del correo electrónico
+	to := []string{cita.Paciente.Correo}
+
+	// Cargar la plantilla HTML
+	tmpl, err := template.ParseFiles("plantillas/plantilla.html")
+	if err != nil {
+		return c.SendString("Error: " + err.Error())
+	}
+
+	// Generar el contenido del correo electrónico a partir de la plantilla HTML
+	var body bytes.Buffer
+	err = tmpl.Execute(&body, cita)
+	if err != nil {
+		return c.SendString("Error: " + err.Error())
+	}
+
+	// Autenticarse en el servidor SMTP y enviar el correo electrónico
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	// Mensaje del correo con el html incrustado
+	message := []byte(fmt.Sprintf("To: %s\r\nSubject: %s\r\nContent-Type: text/html\r\n\r\n%s", to[0], subject, body.String()))
+
+	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
+	if err != nil {
+		return c.SendString("Error: " + err.Error())
+	}
+
+	// Incrementar el contador de los recordatorios en la base de datos.
+	err = cita.IncrementarRecordatorio()
+	if err != nil {
+		return c.SendString("Error: " + err.Error())
+	}
+
+	fmt.Println("Correo electrónico enviado correctamente.")
+
+	return c.SendString("Se envio el correo electronico")
 }

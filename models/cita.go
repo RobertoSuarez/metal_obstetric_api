@@ -11,11 +11,12 @@ import (
 )
 
 type Cita struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Paciente    User               `bson:"paciente" json:"paciente"`
-	Doctor      User               `bson:"doctor" json:"doctor"`
-	Descripcion string             `bson:"descripcion" json:"descripcion"`
-	Fecha       time.Time          `bson:"fecha" json:"fecha"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Paciente      User               `bson:"paciente" json:"paciente"`
+	Doctor        User               `bson:"doctor" json:"doctor"`
+	Descripcion   string             `bson:"descripcion" json:"descripcion"`
+	Fecha         time.Time          `bson:"fecha" json:"fecha"`
+	Recordatorios int                `bson:"recordatorios" json:"recordatorios"`
 
 	// Los estaos que podria tener serian
 	// Por atender: La cita está pendiente de ser atendida por el profesional médico.
@@ -124,4 +125,18 @@ func (c *Cita) ObtenerCitaPorID() error {
 
 	citas := DB.Collection("citas")
 	return citas.FindOne(context.TODO(), bson.D{{"_id", c.ID}}).Decode(&c)
+}
+
+// Incrementar el recordatorio
+func (c *Cita) IncrementarRecordatorio() error {
+	citas := DB.Collection("citas")
+
+	result, err := citas.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": c.ID},
+		bson.M{"$inc": bson.M{"recordatorio": 1}},
+	)
+	fmt.Println("Documentos actualizados: ", result.UpsertedCount)
+
+	return err
 }
