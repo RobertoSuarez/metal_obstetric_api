@@ -144,14 +144,14 @@ func (citaController *Cita) HandlerRecordarCita(c *fiber.Ctx) error {
 	// Cargar la plantilla HTML
 	tmpl, err := template.ParseFiles("plantillas/plantilla.html")
 	if err != nil {
-		return c.SendString("Error: " + err.Error())
+		return c.Status(400).SendString("Error: " + err.Error())
 	}
 
 	// Generar el contenido del correo electrónico a partir de la plantilla HTML
 	var body bytes.Buffer
 	err = tmpl.Execute(&body, cita)
 	if err != nil {
-		return c.SendString("Error: " + err.Error())
+		return c.Status(400).SendString("Error: " + err.Error())
 	}
 
 	// Autenticarse en el servidor SMTP y enviar el correo electrónico
@@ -162,16 +162,21 @@ func (citaController *Cita) HandlerRecordarCita(c *fiber.Ctx) error {
 
 	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
 	if err != nil {
-		return c.SendString("Error: " + err.Error())
+		return c.Status(400).SendString("Error: " + err.Error())
 	}
 
 	// Incrementar el contador de los recordatorios en la base de datos.
 	err = cita.IncrementarRecordatorio()
 	if err != nil {
-		return c.SendString("Error: " + err.Error())
+		return c.Status(400).SendString("Error: " + err.Error())
 	}
 
 	fmt.Println("Correo electrónico enviado correctamente.")
 
-	return c.SendString("Se envio el correo electronico")
+	err = cita.ObtenerCitaPorID()
+	if err != nil {
+		return c.Status(400).SendString("Error: " + err.Error())
+	}
+
+	return c.JSON(cita)
 }
