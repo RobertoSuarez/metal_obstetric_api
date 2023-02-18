@@ -16,7 +16,7 @@ type Cita struct {
 	Doctor        User               `bson:"doctor" json:"doctor"`
 	Descripcion   string             `bson:"descripcion" json:"descripcion"`
 	Fecha         time.Time          `bson:"fecha" json:"fecha"`
-	Recordatorios int                `bson:"recordatorios" json:"recordatorios"`
+	Recordatorios int32              `bson:"recordatorios" json:"recordatorios"`
 
 	// Los estaos que podria tener serian
 	// Por atender: La cita está pendiente de ser atendida por el profesional médico.
@@ -134,9 +134,9 @@ func (c *Cita) IncrementarRecordatorio() error {
 	result, err := citas.UpdateOne(
 		context.TODO(),
 		bson.M{"_id": c.ID},
-		bson.M{"$inc": bson.M{"recordatorio": 1}},
+		bson.M{"$inc": bson.M{"recordatorios": 1}},
 	)
-	fmt.Println("Documentos actualizados: ", result.UpsertedCount)
+	fmt.Println("Documentos actualizados: ", result)
 
 	return err
 }

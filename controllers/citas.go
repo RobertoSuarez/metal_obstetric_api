@@ -173,10 +173,16 @@ func (citaController *Cita) HandlerRecordarCita(c *fiber.Ctx) error {
 
 	fmt.Println("Correo electrónico enviado correctamente.")
 
-	err = cita.ObtenerCitaPorID()
+	var data models.Cita
+	data.ID, err = primitive.ObjectIDFromHex(idCita)
 	if err != nil {
 		return c.Status(400).SendString("Error: " + err.Error())
 	}
 
-	return c.JSON(cita)
+	data.ObtenerCitaPorID()
+
+	fmt.Println("_id: ", data.ID.String())
+	fmt.Println("Recordatorios: ", data.Recordatorios)
+
+	return c.JSON(data)
 }
