@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -139,4 +140,43 @@ func (c *Cita) IncrementarRecordatorio() error {
 	fmt.Println("Documentos actualizados: ", result)
 
 	return err
+}
+
+func (c *Cita) ObtenerProximasCitas(idUsuario string) ([]Cita, error) {
+	collCitas := DB.Collection("citas")
+
+	var citas []Cita
+
+	// filtro para obtener las citas de un paciente en especifico
+	// y el estado debe estar Por atender
+	objID, err := primitive.ObjectIDFromHex(idUsuario)
+	if err != nil {
+		logger.Error("error al crear el ObjectID: ", err.Error())
+		return citas, errors.New("Error en el id del usuario")
+	}
+	filter := bson.D{
+		{"paciente._id", objID},
+		{"estado", "Por atender"},
+	}
+
+	cur, err := collCitas.Find(context.TODO(), filter)
+	if err != nil {
+		return citas, err
+	}
+
+	for cur.Next(context.TODO()) {
+		var result Cita
+		err := cur.Decode(&result)
+		if err != nil {
+			return citas, err
+		}
+
+		citas = append(citas, result)
+	}
+
+	if err := cur.Err(); err != nil {
+		return citas, err
+	}
+
+	return citas, nil
 }

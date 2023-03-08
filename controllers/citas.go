@@ -20,6 +20,7 @@ func NewControllerCitas() *Cita {
 
 func (cita *Cita) ConfigPath(router *fiber.App) *fiber.App {
 	router.Get("/", cita.HandlerObtenerCitas)
+	router.Get("/proximas-citas/:idusuario", cita.HandleProximasCitas)
 	router.Post("/", cita.HandlerRegistrarCitas)
 	router.Put("/", cita.HandlerActualizarCita)
 
@@ -114,6 +115,23 @@ func (citaController *Cita) HandlerObtenerCitaPorID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(cita)
+}
+
+// Manipulador para las reservas
+func (citaController *Cita) HandleProximasCitas(c *fiber.Ctx) error {
+
+	idUsuario := c.Params("idusuario")
+	if len(idUsuario) < 1 {
+		return c.Status(400).SendString("Fatal falta el id del usuario")
+	}
+
+	var cita models.Cita
+	citas, err := cita.ObtenerProximasCitas(idUsuario)
+	if err != nil {
+		return c.Status(400).SendString(err.Error())
+	}
+
+	return c.JSON(citas)
 }
 
 // generar el recordatorio para la paciente
