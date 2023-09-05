@@ -149,7 +149,7 @@ func (citaController *Cita) HandlerRecordarCita(c *fiber.Ctx) error {
 
 	// configuración del correo
 	from := "electrosonix12@gmail.com"
-	password := "ntcrqetvrfbtsxvq"
+	password := "pndbxanbpafnsqam"
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 
