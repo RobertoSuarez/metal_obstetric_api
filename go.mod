@@ -2,6 +2,8 @@ module github.com/RobertoSuarez/api_metal
 
 go 1.19
 
+// +heroku goVersion 1.19
+
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gofiber/fiber/v2 v2.40.1

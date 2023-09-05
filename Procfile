@@ -1,1 +1,1 @@
-web: bin/metal_obstetric_api
+web: api_metal
