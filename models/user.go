@@ -22,6 +22,7 @@ type User struct {
 	Nacimiento time.Time          `bson:"nacimiento,omitempty" json:"nacimiento"`
 	Celular    string             `bson:"celular,omitempty" json:"celular"`
 	Rol        string             `bson:"rol" json:"rol"`
+	PhotoURL   string             `bson:"photo_url" json:"photoURL"`
 }
 
 func (u *User) getNameCollection() string {
