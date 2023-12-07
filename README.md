@@ -1,4 +1,4 @@
-# Proyecto API ABORTERA
+# API REST Metal Obstetric
 
 ## Requisitos para ejecutar la API REST
 - Go lang v1.19 o la actualizada
